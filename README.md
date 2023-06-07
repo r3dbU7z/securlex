@@ -1,6 +1,9 @@
 # securlex
 securlex.sh - URLsecator bash script for export online/offline hosts from URLhaus CSV file to IPs list(.txt)
 
+### Requirements
+sqlite3
+
 ```console
 $ ./securlex.sh -h
 
@@ -17,3 +20,5 @@ Usage: securlex.sh [-f<filename>][-t<tags>][-s][-c][-n<Username>][-w<4>][-o file
         -o fileout.txt - set output filename (optional) / default 'offline_mirai_hosts.txt'
         ./securlex.sh -s -f urlhaus.cve -t mirai -n r3dbU7z
 ```
+![help](https://i.ibb.co/QMVY1V6/help.png)
+![example](https://i.ibb.co/3rZf06r/cmd.png)
