@@ -181,13 +181,13 @@ _sqlExport
 printf "IPs list in - '${ips_filename}' file.\n"
 
 _check_online_status(){
+	if  [ -z ${timeout+x} ]; then
+		local timeout=1
+	fi
 	#Read IPs list from file
 	readarray _ip < $ips_filename
 	#Get HTTP response status codes
-	for ip in ${_ip[@]};do 
-		if  [ -z ${timeout+x} ]; then
-			local timeout=1
-		fi	
+	for ip in ${_ip[@]};do 	
 		respcode=$(curl --max-time $timeout -Is http://$ip | head -n1 | awk '{print$2}')
 		#printf "IP: $ip - HTTP - ${respcode}\n" | 2>&1 tee -a $(echo scanlog_$(date '+%Y-%m-%d').log)
 		printf "IP: $ip - HTTP - ${respcode}\n"
