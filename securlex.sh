@@ -8,6 +8,14 @@
 #		AND tags REGEXP '${_tag}' \
 #		AND reporter='${username}');
 #
+#v0.1
+# SELECT url FROM (
+# SELECT id,dateadded,url,url_status,tags,urlhaus_link,reporter
+# FROM (
+	# SELECT id,dateadded,url,url_status,tags,urlhaus_link,reporter FROM recent_urlhaus
+		# WHERE NOT tags REGEXP 'Mozi' AND tags REGEXP 'mirai' AND url_status='offline' 
+	# ) WHERE url NOT REGEXP 'mozi');
+#
 printf "\nSECURLEX - URLsecator\n Script for export online|offline hosts from URLhaus CSV file to IPs list(.txt).\n\n"
 #Get options
 while getopts "f:t:n:o:w:sch" opt
@@ -150,7 +158,8 @@ fi
 #Check username
 if [ -z  ${username+x} ]; then
 	#Export URLs with tag and status filters
-	_sql_query="SELECT url FROM (SELECT url,url_status,tags FROM ${table_name} WHERE tags REGEXP '${_tag}' AND url_status='${_status}');"
+	#_sql_query="SELECT url FROM (SELECT url,url_status,tags FROM ${table_name} WHERE tags REGEXP '${_tag}' AND url_status='${_status}');"
+	_sql_query="SELECT url FROM (SELECT url,url_status,tags FROM (SELECT url,url_status,tags FROM ${table_name} WHERE NOT tags REGEXP 'Mozi' AND tags REGEXP '${_tag}' AND url_status='${_status}') WHERE url NOT REGEXP 'mozi');"
 else
 	printf  "Selected URLhaus username: ${username}.\n"
 	#Export URLs with tag, status and reporter filters
@@ -168,7 +177,7 @@ fi
 printf "Export URLs... to '${out_filename}'\n"
 ips_filename=${out_filename};
 #Import CSV to SQL dbase
-sqlite3 -csv << END_SQL | cut -d '/' -f 3 | cut -d ':' -f 1  | sort | uniq > ${out_filename}; #URLs to IPs list
+./sqlite3 -csv << END_SQL | cut -d '/' -f 4 | cut -d ':' -f 1  | sort | uniq > ${out_filename}; #URLs to IPs list
 #.headers on
 .import ${csv_filename} ${table_name}
 ${_sql_query}
@@ -183,11 +192,12 @@ printf "IPs list in - '${ips_filename}' file.\n"
 _check_online_status(){
 	if  [ -z ${timeout+x} ]; then
 		local timeout=1
-	fi
+	fi	
 	#Read IPs list from file
 	readarray _ip < $ips_filename
 	#Get HTTP response status codes
-	for ip in ${_ip[@]};do 	
+	for ip in ${_ip[@]};do 
+
 		respcode=$(curl --max-time $timeout -Is http://$ip | head -n1 | awk '{print$2}')
 		#printf "IP: $ip - HTTP - ${respcode}\n" | 2>&1 tee -a $(echo scanlog_$(date '+%Y-%m-%d').log)
 		printf "IP: $ip - HTTP - ${respcode}\n"
