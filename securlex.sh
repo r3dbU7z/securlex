@@ -177,7 +177,7 @@ fi
 printf "Export URLs... to '${out_filename}'\n"
 ips_filename=${out_filename};
 #Import CSV to SQL dbase
-./sqlite3 -csv << END_SQL | cut -d '/' -f 4 | cut -d ':' -f 1  | sort | uniq > ${out_filename}; #URLs to IPs list
+./sqlite3 -csv << END_SQL | cut -d '/' -f 3 | cut -d ':' -f 1  | sort | uniq > ${out_filename}; #URLs to IPs list
 #.headers on
 .import ${csv_filename} ${table_name}
 ${_sql_query}
